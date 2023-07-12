@@ -1,10 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Bright Star LoginIn</title>
+    <link rel="stylesheet" href="lib/element-plus/index.css">
+    <script src="lib/vue/vue.global.js"></script>
+    <script src="lib/element-plus/index.full.js"></script>
+    <script src="lib/axios/axios.js"></script>
+    <style>
+        body {
+            overflow: auto;
+            font-size: 20px;
+        }
+
+        .login-box {
+
+            width: 350px;
+            margin: 60px 20px 30px 30px;
+            padding: 0px 0px 15px 0px;
+
+            border: 1px solid black;
+
+        }
+
+        .login-box-inside {
+            margin: 20px;
+            padding: 10px;
+
+        }
+
+        html, body, #app, .el-container {
+            padding: 0px;
+            margin: 0px;
+            height: 100%;
+            max-height: 100%;
+        }
+
+        #logoText {
+            display: flex;
+            margin-left: 40px;
+            margin-top: 40px;
+            padding: 20px;
+            height: 100px;
+            justify-content: space-between;
+        }
+
+        .logoImg {
+            width: 200px;
+        }
+
+        .showAD {
+
+            display: block;
+            width: 600px;
+
+        }
+
+        .main {
+            border: 1px solid black;
+            margin: 40px 200px 40px 200px;
+            height: 600px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+        }
+
+        .showAD {
+            margin: 40px;
+        }
+
+        .showADHeader {
+            background: #66b1ff;
+        }
+
+        .lyz {
+            margin: 0;
+            background: #66b1ff;
+        }
+
+    </style>
 </head>
 <body>
-$END$
+<div id="app">
+
+
+    <div id="logoText">
+        <div>
+            <p class="mx-1" size="large">株式会社ブライトスター</p>
+            <p class="mx-1" size="large">BRIGHT STAR CO.LTD.</p>
+        </div>
+
+        <span class="mx-1" style="font-size: 50px;"> 社内統合管理システム</span>
+        <img class="logoImg" src="./lib/img/logo/logo.png" alt="" srcset="">
+    </div>
+    <div class="main">
+
+        <el-form ref="loginForm" label-width="100px" :rules="rules" :model="form" class="login-box">
+            <p class="lyz">利用者登録</p>
+            <div class="login-box-inside"></div>
+            <el-form-item label="ログインID:" prop="username">
+                <el-input style="width: 200px;" type="text" placeholder="" v-model="form.username"></el-input>
+            </el-form-item>
+            <el-form-item label="パスワード:" prop="password">
+                <el-input style="width: 200px;" show-password type="password" placeholder=""
+                          v-model="form.password"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" v-on:click="onSubmit('loginForm')" style="width: 200px;">ログイン
+                </el-button>
+            </el-form-item>
+        </el-form>
+
+        <div class="showAD">
+            <p class="showADHeader"> 応用機能</p>
+            <p>●受注管理 ●外注管理 ●請求作成</p>
+            <p>●見積作成 ●作業催促 ●各書類作成</p>
+            <p class="showADHeader">マスタ管理機能</p>
+            <p>●取引先情報管理</p>
+            <p>●社員情報管理</p>
+            <p>・基本情報 ・履歴 ・経歴</p>
+            <p class="showADHeader">開発関連</p>
+            <p>バージョンVer0.0.0.1</p>
+            <p>保留</p>
+        </div>
+    </div>
+</div>
+<script>
+    const Main = {
+        data() {
+            return {
+                form: {
+                    username: ''
+                    , password: ''
+                }, rules: {
+                    username: [
+                        {required: true, message: 'ログインIDは空欄にできません。', trigger: 'blur'}
+                    ],
+                    password: [
+                        {required: true, message: 'パスワードは空欄にできません。', trigger: 'blur'}
+                    ]
+                }
+            }
+        }, methods: {
+            onSubmit(formName) {
+                const form = this.$refs[formName];
+                form.validate((valid) => {
+                    if (valid) {
+                        console.info("表单校验成功,准备提交数据");
+                        const form = this.form;
+                        const $message = this.$message;
+                        const params = new URLSearchParams();
+                        params.append("username", form.username);
+                        params.append("password", form.password);
+                        axios.post("/api/login", params, {}).then(function (response) {
+                            console.info(response);
+                            const json = response.data;
+                            if (json.code == "0") {
+                                sessionStorage.uid = json.data.user.userId;
+                                sessionStorage.eid = json.data.user.employeeId;
+                                window.location.href = "/index.html";
+                            } else {
+                                $message.error({message: json.message, offset: 100});
+                            }
+                        });
+                    }
+                })
+            }
+        }
+    };
+    const app = Vue.createApp(Main);
+    app.use(ElementPlus);
+    app.mount("#app");
+</script>
 </body>
 </html>
